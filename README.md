@@ -1,5 +1,6 @@
 # Nuevo
-Una web app con Python y Stremlit para unificar transacciones, se transfiere a un solo alias el total y con lo establecido en cada uno de los alias asignados se transfiere lo que corresponde.
+
+Una web app con Python y Streamlit para unificar transacciones, se transfiere a un solo alias el total y con lo establecido en cada uno de los alias asignados se transfiere lo que corresponde.
 
 Por Ejemplo, hay un alias A y un alias B se transfiere al alias inicial, como hay una regla que dice que A cobra un tercio y otro alias B dos tercios se transfieren esas fracciones de lo que hay en alias inicial.
 
