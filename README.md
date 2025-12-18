@@ -5,7 +5,7 @@ Por Ejemplo, hay un alias A y un alias B se transfiere al alias inicial, como ha
 
 Se trata de una billetera virtual para transferencias múltiples con reglas asignadas de que porcentaje del total recibir, perfecto para pagar proveedores, empleados, herederos, instituciones y otros grupos de cuentas a transferir determinado porcentaje con una sola transferencia. Automáticamente se transfiere lo correspondiente al mandar al alias del usuario según como haga y configure los grupos de alias de otros usuarios.
 ## Diagramas UML y documentacion de interes
-![Diagramas con las clases Alias y Agrupacion del modulo alias.py](doc/diagramas_alias.png)
+![Diagramas con las clases Alias y Agrupacion del modulo alias.py](doc/diagrama_alias.png)
 ## Fecha de inicio
 Martes 16/12/2025
 ### Horarios de desarrollo
