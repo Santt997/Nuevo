@@ -1,4 +1,4 @@
-name: uml-generator
+name: UMLgen-py310
 channels:
   - conda-forge
   - defaults
