@@ -7,7 +7,7 @@
 ## Create
 
 ```bash
-cd ~/Documents/GitHub/Nuevo/envs &&
+cd ~/Documents/GitHub/DistribuidorProporcional/envs &&
 conda env create --file UMLgen-py310.yml -y
 ```
 
@@ -22,7 +22,7 @@ conda env create --file UMLgen-py310.yml -y
 ## Update
 
 ```bash
-cd ~/Documents/GitHub/Nuevo/envs &&
+cd ~/Documents/GitHub/DistribuidorProporcional/envs &&
 conda env update --file UMLgen-py310.yml --prune && 
 conda env export -n UMLgen-py310 > UMLgen0-py310.yml.tmp && 
 if [[ ! -f UMLgen-py310.yml || $(md5sum UMLgen-py310.yml.tmp | cut -d' ' -f1) != $(md5sum UMLgen-py310.yml | cut -d' ' -f1) ]]; then
