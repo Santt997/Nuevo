@@ -1,10 +1,14 @@
-name: Generate UML Diagram
+name: Generate UML Diagrams
 on:
   push:
     branches: [ main ]
-    paths: [ 'doc/diagrams/**/*.puml' ]
+    paths: # Se activa al cambiar código O diagramas fuente
+      - 'doc/diagrams/**/*.puml'
+      - 'src/**/*.py'
+      - '!doc/diagrams/**/*.png' # Ignora cambios en las imágenes ya generadas
+
 jobs:
-  generate:
+  generate-all-diagrams:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -15,21 +19,55 @@ jobs:
       - name: Setup Conda Environment
         uses: conda-incubator/setup-miniconda@v3
         with:
-          activate-environment: envs/UMLgen-py310
+          activate-environment: uml-generator
           environment-file: envs/UMLgen-py310.yml
           auto-activate-base: false
 
-      - name: Generate PNG from PlantUML
+      # --- PASO 1: Generar diagramas desde PlantUML (desde .puml) ---
+      - name: Generate PNGs from PlantUML files
+        if: contains(github.event.head_commit.message, '[skip plantuml]') == false
         shell: bash -l {0}
         run: |
-          plantuml -verbose -png -o doc/diagrams doc/diagrams/*.puml
+          echo "Generando diagramas desde archivos .puml..."
+          plantuml -verbose -png -o doc/diagrams doc/diagrams/*.puml 2>/dev/null || echo "No se encontraron archivos .puml para procesar."
 
-      - name: Commit and Push Generated Images
+      # --- PASO 2: Generar diagramas desde código Python (con pyreverse) ---
+      - name: Generate UML from Python code (pyreverse)
+        shell: bash -l {0}
+        run: |
+          echo "Generando diagramas desde código Python con pyreverse..."
+          # 1. Generar archivos .dot
+          pyreverse -o dot -p DistribuidorPagos ./src/ 2>/dev/null || { echo "pyreverse no generó archivos. El directorio ./src/ puede estar vacío o no existir."; exit 0; }
+          
+          # 2. Convertir .dot a .png (si los archivos .dot existen)
+          if [[ -f "classes_DistribuidorPagos.dot" ]]; then
+            dot -Tpng classes_DistribuidorPagos.dot -o doc/diagrams/classes_from_code.png
+            echo "Diagrama de clases generado: classes_from_code.png"
+          fi
+          
+          if [[ -f "packages_DistribuidorPagos.dot" ]]; then
+            dot -Tpng packages_DistribuidorPagos.dot -o doc/diagrams/packages_from_code.png
+            echo "Diagrama de paquetes generado: packages_from_code.png"
+          fi
+          
+          # 3. Limpiar archivos .dot intermedios
+          rm -f classes_DistribuidorPagos.dot packages_DistribuidorPagos.dot
+
+      # --- PASO 3: Subir todos los cambios (imágenes generadas) ---
+      - name: Commit and Push All Generated Images
         if: github.ref == 'refs/heads/main'
         shell: bash -l {0}
         run: |
+          # Configurar git
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add docs/diagramas/*.png
-          git commit -m "docs(uml): actualizar diagramas generados [skip ci]" || echo "Sin cambios para commitear"
-          git push
+          
+          # Agregar solo archivos PNG en la carpeta de diagramas
+          git add doc/diagrams/*.png 2>/dev/null || echo "No hay archivos PNG nuevos para agregar."
+          
+          # Hacer commit solo si hay cambios
+          git diff --cached --quiet || (
+            git commit -m "docs(uml): actualizar diagramas generados [skip ci]" &&
+            echo "Commit realizado con los diagramas generados." &&
+            git push
+          ) || echo "No hay cambios en los diagramas para commitear."
